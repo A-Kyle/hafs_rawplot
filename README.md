@@ -2,6 +2,26 @@
 
 Latest update 14 Mar 2022 -- Kyle Ahern [NOAA/HRD]
 
+Note: Tested and intended for use with the HAFS branch
+feature/hafs_nest_sync , but it should be compatible with
+other similar branches that can generate atmos_diag and
+grid_mspec forecast files using diag_table.tmp in the HAFS
+part directory. For reference, the diag_table.tmp file used
+to test this code is provided. The latest version seeing 
+immediate development at the time of writing is the newly
+minted feature/hafsv0.3_baseline branch, which does not 
+include the time-dependent zsurf (surface elevation) field
+"mzsurf" seen in this repository's diag_table.tmp . Further,
+output of atmos_diag files has been disabled in the newest 
+branch's diag_table files by default. To plot all fields 
+handled by this repository in the feature/hafsv0.3_baseline 
+branch, the user must:
+1) Uncomment the "atmos_diag" line under "output files"
+   in the diag_table.tmp file they will use with HAFS
+2) Add the "mzsurf" field to the "grid_mspec" output fields
+   (as seen on line 36 of this repository's diag_table.tmp
+   file).
+
 This repository contains various scripts written in Bash
 that can be used to convert raw HAFS files (i.e., without 
 post-processing) to a more friendly NetCDF format with GrADS
