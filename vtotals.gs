@@ -69,7 +69,7 @@ t=tmin; while(t<=tmax)
   'set ccolor '_TRNBLK
   'd 'varname
 
-  'set clevs'_clevs
+  'set clevs '_clevs
   'set ccols '_ccontours
   'd 'varname
 
