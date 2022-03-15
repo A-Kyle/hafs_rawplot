@@ -10,6 +10,7 @@ atmos_diag output files, here are quick instructions for use:
    preferably a "home" directory of some sort
 2) Read and modify the "convert_fcst.sh" script accordingly
 3) Run the "convert_fcst.sh" script on the command line
+
 Note that if your forecast's diag_table.tmp is not set up to
 produce the grid_mspec and atmos_diag files, the core program
 in convert_fcst.sh will not work properly.
