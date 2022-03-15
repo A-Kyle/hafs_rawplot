@@ -41,7 +41,7 @@ proctime=999  # set to either:
               #      to process files for only the last output step
               #   C) 0 to process every output step
 
-procmoad=0 # set to 0 to skip all processing of parent domain fcst files
+procmoad=1 # set to 0 to skip all processing of parent domain fcst files
 procnest=1 # set to 0 to skip all processing of nest domain fcst files
 diagvars="us,vs,t850,rh500,slp"       # variables from atmos_diag files
 gridvars="grid_lont,grid_latt,zsurf"  # variables from grid_mspec files
@@ -50,7 +50,7 @@ gridvars="grid_lont,grid_latt,zsurf"  # variables from grid_mspec files
 drawmoad=1    # set to 1 to draw parent domain images
 drawnest=1    # set to 1 to draw nest domain images
 
-drawallvars=0 # override: set to 1 to draw all available fields
+drawallvars=1 # override: set to 1 to draw all available fields
               #           otherwise, process individual field flags below
 drawslp=0     # 1 to draw slp field
 drawusfc=0    # 1 to draw u_sfc field
