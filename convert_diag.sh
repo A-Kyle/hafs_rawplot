@@ -329,9 +329,7 @@ fi
 if [ $drawmoad == 1 ] && [ $drawnest == 1 ] ; then
   echo " Drawing MOAD & nest vars for time = ${proctime} :" ;
   if [ $drawallvars != 1 ] ; then
-    echo yoyo
     if [ $drawslp == 1 ] ;  then echo "   slp" ;      grads -blc "slp.gs 2 ${drawtime} 1"     > grads.log ; fi
-    echo yaya
     if [ $drawusfc == 1 ] ;     then echo "   usfc" ;     grads -blc "us.gs 2 ${drawtime} 1"      >> grads.log ; fi
     if [ $drawvsfc == 1 ] ;     then echo "   vsfc" ;     grads -blc "vs.gs 2 ${drawtime} 1"      >> grads.log ; fi
     if [ $drawwindsfc == 1 ] ;  then echo "   windsfc" ;  grads -blc "vtotals.gs 2 ${drawtime} 1" >> grads.log ; fi
