@@ -12,14 +12,23 @@ varname="zsurf"
 
 'reinit'
 
-if (nest != 1)
+if (nest=0) ;* parent domain only
   'xdfopen output/fcst.ctl'
-else
+else; if (nest=1) ;* nest domain only
   'xdfopen output/fcst.nest02.ctl'
-endif
+else; if (nest=2) ;* both domains
+  'xdfopen output/fcst.ctl'
+  'xdfopen output/fcst.nest02.ctl'
+  fpos="output/nest_coordinates.dat"
+else;
+  say "Error: Bad domain option; exiting..."
+  exit
+endif; endif; endif;
 
-'q file'
+'q file 1'
 lin=sublin(result,5); xsiz=subwrd(lin,3); ysiz=subwrd(lin,6); tsiz=subwrd(lin,12);
+'q file 2'
+lin=sublin(result,5); nxsiz=subwrd(lin,3); nysiz=subwrd(lin,6); ntsiz=subwrd(lin,12);
 
 if (times=0 | times="" | times="all" | times="All" | times="ALL")
   tmin=1
@@ -43,11 +52,20 @@ endif
 'set background 1'
 setupcol()
 
-t=tmin; while(t<=tmax)
+if (nest!=2)
+  vpg_xi=1.0; vpg_xf=10.0; vpg_yi=1.0; vpg_yf=7.5;
+else
+  vpg_xi=1.0; vpg_xf=5.5; vpg_yi=1.0; vpg_yf=7.5;
+  vpg_nxi=5.5; vpg_nxf=10.0; vpg_nyi=1.0; vpg_nyf=7.5;
+endif
 
+t=tmin; while(t<=tmax)
   'c'
+  'set dfile 1'
+  'set vpage 'vpg_xi' 'vpg_xf' 'vpg_yi' 'vpg_yf
+  'set X 1 'xsiz
+  'set Y 1 'ysiz
   'set T 't
-  'set vpage 1.0 10.0 1.0 7.5'
 
   'set mpdraw off'
   'set grid off'
@@ -56,7 +74,7 @@ t=tmin; while(t<=tmax)
   'set clab off'
   'set grads off'
 
-* check if there is any elevation
+  ;* check if there is any elevation
   if (nest=1 | t=tmin)
     'd amax('varname',X=1,X='xsiz',Y=1,Y='ysiz')'
     maxval=subwrd(result,4)
@@ -86,7 +104,7 @@ t=tmin; while(t<=tmax)
   if (maxval!=0 | minval !=0)
     'set ccolor 1';'set cthick 3';'set clevs 0';'d zsurf'
 *    'set ccolor 0';'set cthick 1';'set clevs 0';'d zsurf'
-*  Draw extreme values
+    ;* Draw extreme values
     'set gxout grfill'
     'set clevs '_EXLOVAL' '_EXHIVAL
     'set ccols '_EXLOCOL' 53 '_EXHICOL
@@ -100,11 +118,83 @@ t=tmin; while(t<=tmax)
     'draw title Nested tile\'time
   endif
 
+  if (nest=2)
+
+    ;* draw nest boundary in parent domain
+    rc=read(fpos); lin=sublin(rc,2);
+    tstamp=subwrd(lin,1); tchk=subwrd(lin,2);
+    if (tstamp=time)
+      bl_x=subwrd(lin,3); bl_y=subwrd(lin,4);
+      tr_x=subwrd(lin,5); tr_y=subwrd(lin,6);
+      bl_x=bl_x-0.5;
+      bl_y=bl_y-0.5;
+      tr_x=tr_x+0.5;
+      tr_y=tr_y+0.5;
+      'q gr2xy 'bl_x' 'bl_y
+      bl_x=subwrd(result,3); bl_y=subwrd(result,6);
+      'q gr2xy 'tr_x' 'tr_y
+      tr_x=subwrd(result,3); tr_y=subwrd(result,6);
+      'draw rec 'bl_x' 'bl_y' 'tr_x' 'tr_y
+    endif
+
+    'set dfile 2'
+    'set vpage 'vpg_nxi' 'vpg_nxf' 'vpg_nyi' 'vpg_nyf
+    'set X 1 'nxsiz
+    'set Y 1 'nysiz
+    'set T 't
+
+    'set mpdraw off'
+    'set grid off'
+    'set xlab off'
+    'set ylab off'
+    'set clab off'
+    'set grads off'
+
+    ;* check if there is any elevation
+    if (nest=1 | t=tmin)
+      'd amax('varname',X=1,X='nxsiz',Y=1,Y='nysiz')'
+      maxval=subwrd(result,4)
+      if (maxval=0)
+        'd amin('varname',X=1,X='nxsiz',Y=1,Y='nysiz')'
+        minval=subwrd(result,4)
+      else
+        minval=0
+      endif
+    endif
+
+    if (maxval!=0 | minval !=0)
+      'set gxout grfill'
+      'set clevs '_clevs
+      'set ccols '_ccols
+      'd 'varname'/1000'
+    else
+      'set gxout shaded'
+      'set ccolor 70'
+      'd zsurf'
+    endif
+
+    'set gxout contour'
+    'set ccolor 50';'set cthick 3';'set cstyle 3';'set cint 10';'d grid_lont'
+    'set ccolor 50';'set cthick 3';'set cstyle 3';'set cint 10';'d grid_latt'
+
+    if (maxval!=0 | minval !=0)
+      'set ccolor 1';'set cthick 3';'set clevs 0';'d zsurf'
+      ;* Draw extreme values
+      'set gxout grfill'
+      'set clevs '_EXLOVAL' '_EXHIVAL
+      'set ccols '_EXLOCOL' 53 '_EXHICOL
+      'd 'varname'/1000'
+    endif
+
+    'q dims'; lin=sublin(result,5); time=subwrd(lin,6);
+    'draw title Nested tile\'time
+  endif
+
   'set vpage off'
 
   drawcolorbar()
 
-  if (nest!=1)
+  if (nest=0)
     if (t<10)
       'gxprint img/'varname'_00't'.png'
     else; if (t<100)
@@ -112,7 +202,7 @@ t=tmin; while(t<=tmax)
     else;
       'gxprint img/'varname'_'t'.png'
     endif; endif;
-  else
+  else; if (nest=1)
     if (t<10)
       'gxprint img/'varname'_nest02_00't'.png'
     else; if (t<100)
@@ -120,7 +210,15 @@ t=tmin; while(t<=tmax)
     else;
       'gxprint img/'varname'_nest02_'t'.png'
     endif; endif;
-  endif
+  else; if (nest=2)
+    if (t<10)
+      'gxprint img/'varname'_combo_00't'.png'
+    else; if (t<100)
+      'gxprint img/'varname'_combo_0't'.png'
+    else;
+      'gxprint img/'varname'_combo_'t'.png'
+    endif; endif;
+  endif; endif; endif;
 
   t=t+1
 endwhile

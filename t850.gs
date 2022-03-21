@@ -12,14 +12,24 @@ varname="tc850"
 
 'reinit'
 
-if (nest != 1)
+if (nest=0) ;* parent domain only
   'xdfopen output/fcst.ctl'
-else
+else; if (nest=1) ;* nest domain only
   'xdfopen output/fcst.nest02.ctl'
-endif
+else; if (nest=2) ;* both domains
+  'xdfopen output/fcst.ctl'
+  'xdfopen output/fcst.nest02.ctl'
+  fpos="output/nest_coordinates.dat"
+else;
+  say "Error: Bad domain option; exiting..."
+  exit
+endif; endif; endif;
 
-'q file'
-lin=sublin(result,5); tsiz=subwrd(lin,12);
+
+'q file 1'
+lin=sublin(result,5); xsiz=subwrd(lin,3); ysiz=subwrd(lin,6); tsiz=subwrd(lin,12);
+'q file 2'
+lin=sublin(result,5); nxsiz=subwrd(lin,3); nysiz=subwrd(lin,6); ntsiz=subwrd(lin,12);
 
 if (times=0 | times="" | times="all" | times="All" | times="ALL")
   tmin=1
@@ -44,12 +54,22 @@ endif
 setupcol()
 setupconcol()
 
+if (nest!=2)
+  vpg_xi=1.0; vpg_xf=10.0; vpg_yi=1.0; vpg_yf=7.5;
+else
+  vpg_xi=1.0; vpg_xf=5.5; vpg_yi=1.0; vpg_yf=7.5;
+  vpg_nxi=5.5; vpg_nxf=10.0; vpg_nyi=1.0; vpg_nyf=7.5;
+endif
+
 t=tmin; while(t<=tmax)
 
   'c'
+  'set dfile 1'
+  'set vpage 'vpg_xi' 'vpg_xf' 'vpg_yi' 'vpg_yf
+  'set X 1 'xsiz
+  'set Y 1 'ysiz
   'set T 't
   'tc850=t850-273.15'
-  'set vpage 1.0 10.0 1.0 7.5'
 
   'set mpdraw off'
   'set grid off'
@@ -80,7 +100,7 @@ t=tmin; while(t<=tmax)
   'set clevs 0'
   'd zsurf'
 
-*  Draw extreme values
+  ;* Draw extreme values
   'set gxout grfill'
   'set clevs '_EXLOVAL' '_EXHIVAL
   'set ccols '_EXLOCOL' 53 '_EXHICOL
@@ -93,11 +113,76 @@ t=tmin; while(t<=tmax)
     'draw title Nested tile\'time
   endif
 
+  if (nest=2)
+
+    ;* draw nest boundary in parent domain
+    rc=read(fpos); lin=sublin(rc,2);
+    tstamp=subwrd(lin,1); tchk=subwrd(lin,2);
+    if (tstamp=time)
+      bl_x=subwrd(lin,3); bl_y=subwrd(lin,4);
+      tr_x=subwrd(lin,5); tr_y=subwrd(lin,6);
+      bl_x=bl_x-0.5;
+      bl_y=bl_y-0.5;
+      tr_x=tr_x+0.5;
+      tr_y=tr_y+0.5;
+      'q gr2xy 'bl_x' 'bl_y
+      bl_x=subwrd(result,3); bl_y=subwrd(result,6);
+      'q gr2xy 'tr_x' 'tr_y
+      tr_x=subwrd(result,3); tr_y=subwrd(result,6);
+      'draw rec 'bl_x' 'bl_y' 'tr_x' 'tr_y
+    endif
+
+    'set dfile 2'
+    'set vpage 'vpg_nxi' 'vpg_nxf' 'vpg_nyi' 'vpg_nyf
+    'set X 1 'nxsiz
+    'set Y 1 'nysiz
+    'set T 't
+    'tc850=t850-273.15'
+
+    'set mpdraw off'
+    'set grid off'
+    'set xlab off'
+    'set ylab off'
+    'set clab off'
+    'set grads off'
+
+    'set gxout shaded'
+    'set clevs '_clevs
+    'set ccols '_ccols
+    'd 'varname
+
+    'set gxout contour'
+    'set cthick 1'
+    'set clevs '_clevs
+    'set ccolor '_TRNBLK
+    'd 'varname
+
+    'set clevs '_clevs
+    'set ccols '_ccontours
+    'd 'varname
+
+    'set ccolor 50';'set cthick 3';'set cstyle 3';'set cint 10';'d grid_lont'
+    'set ccolor 50';'set cthick 3';'set cstyle 3';'set cint 10';'d grid_latt'
+    'set cthick 6'
+    'set ccolor 1'
+    'set clevs 0'
+    'd zsurf'
+
+    ;* Draw extreme values
+    'set gxout grfill'
+    'set clevs '_EXLOVAL' '_EXHIVAL
+    'set ccols '_EXLOCOL' 53 '_EXHICOL
+    'd 'varname
+
+    'q dims'; lin=sublin(result,5); time=subwrd(lin,6);
+    'draw title Nested tile\'time
+  endif
+
   'set vpage off'
 
   drawcolorbar()
 
-  if (nest!=1)
+  if (nest=0)
     if (t<10)
       'gxprint img/'varname'_00't'.png'
     else; if (t<100)
@@ -105,7 +190,7 @@ t=tmin; while(t<=tmax)
     else;
       'gxprint img/'varname'_'t'.png'
     endif; endif;
-  else
+  else; if (nest=1)
     if (t<10)
       'gxprint img/'varname'_nest02_00't'.png'
     else; if (t<100)
@@ -113,7 +198,15 @@ t=tmin; while(t<=tmax)
     else;
       'gxprint img/'varname'_nest02_'t'.png'
     endif; endif;
-  endif
+  else; if (nest=2)
+    if (t<10)
+      'gxprint img/'varname'_combo_00't'.png'
+    else; if (t<100)
+      'gxprint img/'varname'_combo_0't'.png'
+    else;
+      'gxprint img/'varname'_combo_'t'.png'
+    endif; endif;
+  endif; endif; endif;
 
   t=t+1
 endwhile

@@ -46,19 +46,21 @@ procnest=1 # set to 0 to skip all processing of nest domain fcst files
 diagvars="us,vs,t850,rh500,slp"       # variables from atmos_diag files
 gridvars="grid_lont,grid_latt,zsurf"  # variables from grid_mspec files
 
+refine_ratio=3
+
 # images to generate
 drawmoad=1    # set to 1 to draw parent domain images
 drawnest=1    # set to 1 to draw nest domain images
 
-drawallvars=1 # override: set to 1 to draw all available fields
+drawallvars=0 # override: set to 1 to draw all available fields
               #           otherwise, process individual field flags below
-drawslp=0     # 1 to draw slp field
-drawusfc=0    # 1 to draw u_sfc field
-drawvsfc=0    # 1 to draw v_sfc field
-drawwindsfc=0 # 1 to draw sfc horizontal wind magnitude
-drawt850=0    # 1 to draw T_850 field
-drawrh500=0   # 1 to draw rh_500 field
-drawzsurf=0   # 1 to draw sfc elevation field
+drawslp=1     # 1 to draw slp field
+drawusfc=1    # 1 to draw u_sfc field
+drawvsfc=1    # 1 to draw v_sfc field
+drawwindsfc=1 # 1 to draw sfc horizontal wind magnitude
+drawt850=1    # 1 to draw T_850 field
+drawrh500=1   # 1 to draw rh_500 field
+drawzsurf=1   # 1 to draw sfc elevation field
 
 # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % #
 #% # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % ##
@@ -297,6 +299,19 @@ if [ $procnest == 1 ] ; then
 
 fi
 
+if [ $procmoad == 1 ] && [ $procnest == 1 ] ; then
+
+  echo
+  echo "   =========================================   "
+  echo "       Extracting nest position data...        "
+  echo "   =========================================   "
+  echo
+
+  grads -blc "find_nest.gs ${refine_ratio} 1" > find_nest.log
+
+fi
+
+
 echo
 echo "   =========================================   "
 echo "             Generating images...              "
@@ -307,44 +322,66 @@ if [ $proctime != 0 ] ; then
   drawtime=1
 fi
 
-if [ $drawmoad == 1 ] ; then
-  echo " Drawing MOAD vars for time = ${proctime} :" ;
+
+if [ $drawmoad == 1 ] && [ $drawnest == 1 ] ; then
+  echo " Drawing MOAD & nest vars for time = ${proctime} :" ;
   if [ $drawallvars != 1 ] ; then
-    if [ $drawslp == 1 ] ;      then echo "   slp" ;      grads -blc "slp.gs 0 ${drawtime} 1"     > grads.log ; fi
-    if [ $drawusfc == 1 ] ;     then echo "   usfc" ;     grads -blc "us.gs 0 ${drawtime} 1"      >> grads.log ; fi
-    if [ $drawvsfc == 1 ] ;     then echo "   vsfc" ;     grads -blc "vs.gs 0 ${drawtime} 1"      >> grads.log ; fi
-    if [ $drawwindsfc == 1 ] ;  then echo "   windsfc" ;  grads -blc "vtotals.gs 0 ${drawtime} 1" >> grads.log ; fi
-    if [ $drawt850 == 1 ] ;     then echo "   t850" ;     grads -blc "t850.gs 0 ${drawtime} 1"    >> grads.log ; fi
-    if [ $drawrh500 == 1 ] ;    then echo "   rh500" ;    grads -blc "rh.gs 0 ${drawtime} 1"      >> grads.log ; fi
-    if [ $drawzsurf == 1 ] ;    then echo "   zsurf" ;    grads -blc "zsurf.gs 0 ${drawtime} 1"   >> grads.log ; fi
+    if [ $drawslp == 1 ] ;  then echo "   slp" ;      grads -blc "slp.gs 2 ${drawtime} 1"     > grads.log ; fi
+    if [ $drawusfc == 1 ] ;     then echo "   usfc" ;     grads -blc "us.gs 2 ${drawtime} 1"      >> grads.log ; fi
+    if [ $drawvsfc == 1 ] ;     then echo "   vsfc" ;     grads -blc "vs.gs 2 ${drawtime} 1"      >> grads.log ; fi
+    if [ $drawwindsfc == 1 ] ;  then echo "   windsfc" ;  grads -blc "vtotals.gs 2 ${drawtime} 1" >> grads.log ; fi
+    if [ $drawt850 == 1 ] ;     then echo "   t850" ;     grads -blc "t850.gs 2 ${drawtime} 1"    >> grads.log ; fi
+    if [ $drawrh500 == 1 ] ;    then echo "   rh500" ;    grads -blc "rh.gs 2 ${drawtime} 1"      >> grads.log ; fi
+    if [ $drawzsurf == 1 ] ;    then echo "   zsurf" ;    grads -blc "zsurf.gs 2 ${drawtime} 1"   >> grads.log ; fi
   else
-    echo "   slp" ;      grads -blc "slp.gs 0 ${drawtime} 1"     > grads.log
-    echo "   usfc" ;     grads -blc "us.gs 0 ${drawtime} 1"      >> grads.log
-    echo "   vsfc" ;     grads -blc "vs.gs 0 ${drawtime} 1"      >> grads.log
-    echo "   windsfc" ;  grads -blc "vtotals.gs 0 ${drawtime} 1" >> grads.log
-    echo "   t850" ;     grads -blc "t850.gs 0 ${drawtime} 1"    >> grads.log
-    echo "   rh500" ;    grads -blc "rh.gs 0 ${drawtime} 1"      >> grads.log
-    echo "   zsurf" ;    grads -blc "zsurf.gs 0 ${drawtime} 1"   >> grads.log
+    echo "   slp" ;  grads -blc "slp.gs 2 ${drawtime} 1"     > grads.log
+    echo "   usfc" ;     grads -blc "us.gs 2 ${drawtime} 1"  >> grads.log
+    echo "   vsfc" ;     grads -blc "vs.gs 2 ${drawtime} 1"  >> grads.log
+    echo "   windsfc" ;  grads -blc "vtotals.gs 2 ${drawtime} 1" >> grads.log
+    echo "   t850" ;     grads -blc "t850.gs 2 ${drawtime} 1"    >> grads.log
+    echo "   rh500" ;    grads -blc "rh.gs 2 ${drawtime} 1"  >> grads.log
+    echo "   zsurf" ;    grads -blc "zsurf.gs 2 ${drawtime} 1"   >> grads.log
   fi
-fi
-if [ $drawnest == 1 ] ; then
-  echo " Drawing nest vars for time = ${proctime} :" ;
-  if [ $drawallvars != 1 ] ; then
-    if [ $drawslp == 1 ] ;      then echo "   slp" ;      grads -blc "slp.gs 1 ${drawtime} 1"     > grads.log ; fi
-    if [ $drawusfc == 1 ] ;     then echo "   usfc" ;     grads -blc "us.gs 1 ${drawtime} 1"      >> grads.log ; fi
-    if [ $drawvsfc == 1 ] ;     then echo "   vsfc" ;     grads -blc "vs.gs 1 ${drawtime} 1"      >> grads.log ; fi
-    if [ $drawwindsfc == 1 ] ;  then echo "   windsfc" ;  grads -blc "vtotals.gs 1 ${drawtime} 1" >> grads.log ; fi
-    if [ $drawt850 == 1 ] ;     then echo "   t850" ;     grads -blc "t850.gs 1 ${drawtime} 1"    >> grads.log ; fi
-    if [ $drawrh500 == 1 ] ;    then echo "   rh500" ;    grads -blc "rh.gs 1 ${drawtime} 1"      >> grads.log ; fi
-    if [ $drawzsurf == 1 ] ;    then echo "   zsurf" ;    grads -blc "zsurf.gs 1 ${drawtime} 1"   >> grads.log ; fi
-  else
-    echo "   slp" ;      grads -blc "slp.gs 1 ${drawtime} 1"     > grads.log
-    echo "   usfc" ;     grads -blc "us.gs 1 ${drawtime} 1"      >> grads.log
-    echo "   vsfc" ;     grads -blc "vs.gs 1 ${drawtime} 1"      >> grads.log
-    echo "   windsfc" ;  grads -blc "vtotals.gs 1 ${drawtime} 1" >> grads.log
-    echo "   t850" ;     grads -blc "t850.gs 1 ${drawtime} 1"    >> grads.log
-    echo "   rh500" ;    grads -blc "rh.gs 1 ${drawtime} 1"      >> grads.log
-    echo "   zsurf" ;    grads -blc "zsurf.gs 1 ${drawtime} 1"   >> grads.log
+else
+  if [ $drawmoad == 1 ] ; then
+    echo " Drawing MOAD vars for time = ${proctime} :" ;
+    if [ $drawallvars != 1 ] ; then
+      if [ $drawslp == 1 ] ;  then echo "   slp" ;      grads -blc "slp.gs 0 ${drawtime} 1"     > grads.log ; fi
+      if [ $drawusfc == 1 ] ;     then echo "   usfc" ;     grads -blc "us.gs 0 ${drawtime} 1"      >> grads.log ; fi
+      if [ $drawvsfc == 1 ] ;     then echo "   vsfc" ;     grads -blc "vs.gs 0 ${drawtime} 1"      >> grads.log ; fi
+      if [ $drawwindsfc == 1 ] ;  then echo "   windsfc" ;  grads -blc "vtotals.gs 0 ${drawtime} 1" >> grads.log ; fi
+      if [ $drawt850 == 1 ] ;     then echo "   t850" ;     grads -blc "t850.gs 0 ${drawtime} 1"    >> grads.log ; fi
+      if [ $drawrh500 == 1 ] ;    then echo "   rh500" ;    grads -blc "rh.gs 0 ${drawtime} 1"      >> grads.log ; fi
+      if [ $drawzsurf == 1 ] ;    then echo "   zsurf" ;    grads -blc "zsurf.gs 0 ${drawtime} 1"   >> grads.log ; fi
+    else
+      echo "   slp" ;  grads -blc "slp.gs 0 ${drawtime} 1"     > grads.log
+      echo "   usfc" ;     grads -blc "us.gs 0 ${drawtime} 1"  >> grads.log
+      echo "   vsfc" ;     grads -blc "vs.gs 0 ${drawtime} 1"  >> grads.log
+      echo "   windsfc" ;  grads -blc "vtotals.gs 0 ${drawtime} 1" >> grads.log
+      echo "   t850" ;     grads -blc "t850.gs 0 ${drawtime} 1"    >> grads.log
+      echo "   rh500" ;    grads -blc "rh.gs 0 ${drawtime} 1"  >> grads.log
+      echo "   zsurf" ;    grads -blc "zsurf.gs 0 ${drawtime} 1"   >> grads.log
+    fi
+  fi
+  if [ $drawnest == 1 ] ; then
+    echo " Drawing nest vars for time = ${proctime} :" ;
+    if [ $drawallvars != 1 ] ; then
+      if [ $drawslp == 1 ] ;  then echo "   slp" ;      grads -blc "slp.gs 1 ${drawtime} 1"     > grads.log ; fi
+      if [ $drawusfc == 1 ] ;     then echo "   usfc" ;     grads -blc "us.gs 1 ${drawtime} 1"      >> grads.log ; fi
+      if [ $drawvsfc == 1 ] ;     then echo "   vsfc" ;     grads -blc "vs.gs 1 ${drawtime} 1"      >> grads.log ; fi
+      if [ $drawwindsfc == 1 ] ;  then echo "   windsfc" ;  grads -blc "vtotals.gs 1 ${drawtime} 1" >> grads.log ; fi
+      if [ $drawt850 == 1 ] ;     then echo "   t850" ;     grads -blc "t850.gs 1 ${drawtime} 1"    >> grads.log ; fi
+      if [ $drawrh500 == 1 ] ;    then echo "   rh500" ;    grads -blc "rh.gs 1 ${drawtime} 1"      >> grads.log ; fi
+      if [ $drawzsurf == 1 ] ;    then echo "   zsurf" ;    grads -blc "zsurf.gs 1 ${drawtime} 1"   >> grads.log ; fi
+    else
+      echo "   slp" ;  grads -blc "slp.gs 1 ${drawtime} 1"     > grads.log
+      echo "   usfc" ;     grads -blc "us.gs 1 ${drawtime} 1"  >> grads.log
+      echo "   vsfc" ;     grads -blc "vs.gs 1 ${drawtime} 1"  >> grads.log
+      echo "   windsfc" ;  grads -blc "vtotals.gs 1 ${drawtime} 1" >> grads.log
+      echo "   t850" ;     grads -blc "t850.gs 1 ${drawtime} 1"    >> grads.log
+      echo "   rh500" ;    grads -blc "rh.gs 1 ${drawtime} 1"  >> grads.log
+      echo "   zsurf" ;    grads -blc "zsurf.gs 1 ${drawtime} 1"   >> grads.log
+    fi
   fi
 fi
 
