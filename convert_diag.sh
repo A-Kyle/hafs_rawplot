@@ -7,7 +7,7 @@ origin=$(pwd)
 # -->  EXAMPLE:
 # -->  hafsdir="/work/noaa/aoml-hafs1/kahern/HF_regional_020122/HAFS"
 #hafsdir="/path/to/your/hafs/directory"
-hafsdir="/work/noaa/aoml-hafs1/kahern/hafs_nest_sync_offline/HAFS"
+hafsdir="/scratch2/NAGAPE/aoml-hafs1/Kyle.Ahern/hafsv0.3_baseline/HAFS"
 
 # -->  Uncomment the subexpt line below, and
 # -->  set it to the config.SUBEXPT variable in
@@ -17,32 +17,32 @@ hafsdir="/work/noaa/aoml-hafs1/kahern/hafs_nest_sync_offline/HAFS"
 # -->  in your runs/scrub directory.
 # -->  EXAMPLE:
 # -->  subexpt="HAFS_C512_regional_1mvnest_storm"
-subexpt="HAFS_Larry_knDD"
+subexpt="HAFS_Ida_1mvnest_storm"
 
 # -->  Uncomment the cycle line below, and
 # -->  set it to whichever cycle you would like
 # -->  to process
 # -->  EXAMPLE:
 # -->  cycle="2021070200"
-cycle="2021090300"
+cycle="2021082700"
 
 # -->  Uncomment the storm line below, and
 # -->  set it to whichever storm you would like
 # -->  to process for the cycle given
 # -->  EXAMPLE:
 # -->  storm="05L"
-storm="12L"
+storm="09L"
 
 # variables to process
-proctime=999  # set to either:
+proctime=0    # set to either:
               #   A) the output step number to process
               #      [i.e., set to X to process files only for output step X]
               #   B) a number greater than the number of output steps
               #      to process files for only the last output step
               #   C) 0 to process every output step
 
-procmoad=1 # set to 0 to skip all processing of parent domain fcst files
-procnest=1 # set to 0 to skip all processing of nest domain fcst files
+procmoad=0 # set to 0 to skip all processing of parent domain fcst files
+procnest=0 # set to 0 to skip all processing of nest domain fcst files
 diagvars="us,vs,t850,rh500,slp"       # variables from atmos_diag files
 gridvars="grid_lont,grid_latt"        # variables from grid_mspec files
 
@@ -122,7 +122,7 @@ if [ $procmoad == 1 ] ; then
   echo
 
   numfiles=$(ls -1q ${diag_moad_pref}* | wc -l)
-  if [ $proctime > $numfiles ] ; then
+  if [ $proctime -gt $numfiles ] ; then
     proctime=$numfiles
   fi
   if [ $proctime != 0 ] ; then
@@ -178,7 +178,7 @@ if [ $procmoad == 1 ] ; then
       tinit=${hh}Z${dd}${mon}${yyyy}
     fi
 
-    if [ $proctime > 0 ] && [ $proctime != $f ] ; then
+    if [ $proctime -gt 0 ] && [ $proctime != $f ] ; then
       f+=1
       continue
     fi
@@ -219,7 +219,7 @@ if [ $procnest == 1 ] ; then
   echo
 
   numfiles=$(ls -1q ${diag_nest_pref}* | wc -l)
-  if [ $proctime > $numfiles ] ; then
+  if [ $proctime -gt $numfiles ] ; then
     proctime=$numfiles
   fi
   if [ $proctime != 0 ] ; then
@@ -274,7 +274,7 @@ if [ $procnest == 1 ] ; then
       fi
     fi
 
-    if [ $proctime > 0 ] && [ $proctime != $f ] ; then
+    if [ $proctime -gt 0 ] && [ $proctime != $f ] ; then
       f+=1
       continue
     fi
@@ -324,7 +324,10 @@ echo
 
 if [ $proctime != 0 ] ; then
   drawtime=1
+else
+  drawtime=0
 fi
+
 
 
 if [ $drawmoad == 1 ] && [ $drawnest == 1 ] ; then
