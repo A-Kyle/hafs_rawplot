@@ -44,7 +44,7 @@ proctime=999  # set to either:
 procmoad=1 # set to 0 to skip all processing of parent domain fcst files
 procnest=1 # set to 0 to skip all processing of nest domain fcst files
 diagvars="us,vs,t850,rh500,slp"       # variables from atmos_diag files
-gridvars="grid_lont,grid_latt,zsurf"  # variables from grid_mspec files
+gridvars="grid_lont,grid_latt"        # variables from grid_mspec files
 
 refine_ratio=3
 
@@ -60,13 +60,17 @@ drawvsfc=1    # 1 to draw v_sfc field
 drawwindsfc=1 # 1 to draw sfc horizontal wind magnitude
 drawt850=1    # 1 to draw T_850 field
 drawrh500=1   # 1 to draw rh_500 field
-drawzsurf=1   # 1 to draw sfc elevation field
+drawzsurf=0   # 1 to draw sfc elevation field
 
 # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % #
 #% # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % ##
 # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % #
 #% # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % ##
 # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % # % #
+
+#---------------------------------------------------#
+# nothing should need to be altered below this line #
+#---------------------------------------------------#
 
 if [ -z "$hafsdir" ] || [ -z "$subexpt" ] || [ -z "$cycle" ] || [ -z "$storm" ] ; then
   echo "Error: Case parameters not specified. Exiting."
@@ -340,7 +344,7 @@ if [ $drawmoad == 1 ] && [ $drawnest == 1 ] ; then
     echo "   windsfc" ;  grads -blc "vtotals.gs 2 ${drawtime} 1" >> grads.log
     echo "   t850" ;     grads -blc "t850.gs 2 ${drawtime} 1"    >> grads.log
     echo "   rh500" ;    grads -blc "rh.gs 2 ${drawtime} 1"  >> grads.log
-    echo "   zsurf" ;    grads -blc "zsurf.gs 2 ${drawtime} 1"   >> grads.log
+    # echo "   zsurf" ;    grads -blc "zsurf.gs 2 ${drawtime} 1"   >> grads.log
   fi
 else
   if [ $drawmoad == 1 ] ; then
@@ -360,7 +364,7 @@ else
       echo "   windsfc" ;  grads -blc "vtotals.gs 0 ${drawtime} 1" >> grads.log
       echo "   t850" ;     grads -blc "t850.gs 0 ${drawtime} 1"    >> grads.log
       echo "   rh500" ;    grads -blc "rh.gs 0 ${drawtime} 1"  >> grads.log
-      echo "   zsurf" ;    grads -blc "zsurf.gs 0 ${drawtime} 1"   >> grads.log
+      # echo "   zsurf" ;    grads -blc "zsurf.gs 0 ${drawtime} 1"   >> grads.log
     fi
   fi
   if [ $drawnest == 1 ] ; then
@@ -380,7 +384,7 @@ else
       echo "   windsfc" ;  grads -blc "vtotals.gs 1 ${drawtime} 1" >> grads.log
       echo "   t850" ;     grads -blc "t850.gs 1 ${drawtime} 1"    >> grads.log
       echo "   rh500" ;    grads -blc "rh.gs 1 ${drawtime} 1"  >> grads.log
-      echo "   zsurf" ;    grads -blc "zsurf.gs 1 ${drawtime} 1"   >> grads.log
+      # echo "   zsurf" ;    grads -blc "zsurf.gs 1 ${drawtime} 1"   >> grads.log
     fi
   fi
 fi
