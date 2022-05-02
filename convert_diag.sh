@@ -34,15 +34,15 @@ cycle="2021082700"
 storm="09L"
 
 # variables to process
-proctime=0    # set to either:
+proctime=999  # set to either:
               #   A) the output step number to process
               #      [i.e., set to X to process files only for output step X]
               #   B) a number greater than the number of output steps
               #      to process files for only the last output step
               #   C) 0 to process every output step
 
-procmoad=0 # set to 0 to skip all processing of parent domain fcst files
-procnest=0 # set to 0 to skip all processing of nest domain fcst files
+procmoad=1 # set to 0 to skip all processing of parent domain fcst files
+procnest=1 # set to 0 to skip all processing of nest domain fcst files
 diagvars="us,vs,t850,rh500,slp"       # variables from atmos_diag files
 gridvars="grid_lont,grid_latt"        # variables from grid_mspec files
 
